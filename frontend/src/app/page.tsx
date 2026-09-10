@@ -59,7 +59,7 @@ export default function Home() {
       />
 
       {/* Main Tab Views */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden pb-16 md:pb-0">
         {activeTab === 'pos' && <POSWorkspace />}
         {activeTab === 'inventory' && <InventoryManagement currentUser={currentUser} />}
         {activeTab === 'udhaar' && <UdhaarKhata />}

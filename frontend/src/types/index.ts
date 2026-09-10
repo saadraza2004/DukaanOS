@@ -6,6 +6,8 @@ export interface User {
   username: string;
   fullName: string;
   role: UserRole;
+  storeId?: number;
+  storeName?: string;
 }
 
 export interface Product {

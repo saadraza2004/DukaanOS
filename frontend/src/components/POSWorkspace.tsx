@@ -258,25 +258,25 @@ export const POSWorkspace: React.FC<POSWorkspaceProps> = ({ onSaleCompleted }) =
   };
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-4rem)] bg-slate-950 overflow-hidden">
+    <div className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-3.75rem)] bg-slate-950 overflow-hidden">
       {/* Left: Clean, High-Speed Product Catalog */}
       <div className="flex-1 flex flex-col min-w-0 border-r border-slate-800/80">
-        {/* Search & Category Pills */}
-        <div className="p-5 bg-slate-900/60 backdrop-blur-md border-b border-slate-800 flex flex-col gap-3.5">
+        {/* Search & Category Filter */}
+        <div className="p-4 bg-slate-900/60 backdrop-blur-md border-b border-slate-800 flex flex-col gap-3">
           <div className="relative">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search in English or Roman Urdu (sarson ka tel, chawal, cheeni, atta, daal, sabun...) or press F2"
+              placeholder="Search in English or Roman Urdu (e.g. sarson tel, chawal, cheeni, daal...) • F2"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-950 border border-slate-700/80 rounded-2xl text-white placeholder-slate-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+              className="w-full pl-11 pr-16 py-2.5 bg-slate-950/90 border border-slate-800 rounded-xl text-white placeholder-slate-500 text-xs font-medium focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-emerald-500 transition shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md transition"
               >
                 Clear
               </button>
@@ -284,25 +284,25 @@ export const POSWorkspace: React.FC<POSWorkspaceProps> = ({ onSaleCompleted }) =
           </div>
 
           {/* Clean Category Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition shadow-sm ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
                 selectedCategory === null
-                  ? 'bg-emerald-600 text-white shadow-emerald-600/30'
-                  : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  ? 'bg-slate-800 text-white border border-slate-700 shadow-sm font-semibold'
+                  : 'bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              All Items (سب اشیاء)
+              All Items (تمام اشیاء)
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
                   selectedCategory === cat.id
-                    ? 'bg-emerald-600 text-white shadow-emerald-600/30 font-bold'
-                    : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'
+                    ? 'bg-slate-800 text-white border border-slate-700 shadow-sm font-semibold'
+                    : 'bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
                 }`}
               >
                 {cat.name}
@@ -311,8 +311,8 @@ export const POSWorkspace: React.FC<POSWorkspaceProps> = ({ onSaleCompleted }) =
           </div>
         </div>
 
-        {/* Clean, Legible Product Cards (Easy on the eyes while standing) */}
-        <div className="flex-1 overflow-y-auto p-5 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5 content-start">
+        {/* Clean, Legible Product Grid */}
+        <div className="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 content-start">
           {filteredProducts.map((p) => {
             const isLoose = p.unitType === 'KG' || p.unitType === 'LITRE';
             const isLowStock = p.currentStockMajorUnit <= p.minStockThreshold;
@@ -321,43 +321,45 @@ export const POSWorkspace: React.FC<POSWorkspaceProps> = ({ onSaleCompleted }) =
               <button
                 key={p.id}
                 onClick={() => handleProductClick(p)}
-                className="flex flex-col text-left p-4 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/50 hover:bg-slate-800/60 active:scale-[0.98] transition group shadow-sm relative overflow-hidden"
+                className="flex flex-col text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 hover:bg-slate-900 active:scale-[0.99] transition-all group shadow-sm relative overflow-hidden"
               >
-                {isLoose && (
-                  <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <Scale className="w-3 h-3" /> Loose
-                  </span>
-                )}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-white group-hover:text-emerald-300 transition truncate leading-snug">
+                      {p.name}
+                    </h3>
+                    {p.romanUrduName && (
+                      <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                        {p.romanUrduName}
+                      </span>
+                    )}
+                    <p className="text-[11px] text-slate-500 font-urdu truncate mt-0.5">{p.urduName}</p>
+                  </div>
 
-                <div className="flex-1 pr-6">
-                  <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition leading-snug">
-                    {p.name}
-                  </h3>
-                  {p.romanUrduName && (
-                    <span className="text-[11px] font-semibold text-emerald-400/90 block mt-0.5">
-                      {p.romanUrduName.split(' ').slice(0, 4).join(' ')}
+                  {isLoose && (
+                    <span className="shrink-0 flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                      <Scale className="w-2.5 h-2.5" /> Loose
                     </span>
                   )}
-                  <p className="text-xs text-slate-400 font-urdu mt-0.5">{p.urduName}</p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/70 flex items-baseline justify-between">
+                <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-baseline justify-between">
                   <div>
-                    <span className="text-xs text-slate-400">Rs.</span>
-                    <span className="text-lg font-black text-emerald-400 ml-1 tracking-tight">
+                    <span className="text-[10px] text-slate-500">Rs.</span>
+                    <span className="text-base font-bold text-white ml-0.5 tracking-tight">
                       {p.currentSellingPrice.toFixed(0)}
                     </span>
-                    <span className="text-[11px] text-slate-400">/{p.unitType}</span>
+                    <span className="text-[10px] text-slate-500 ml-0.5">/{p.unitType.toLowerCase()}</span>
                   </div>
 
                   <span
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                    className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
                       isLowStock
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        : 'bg-slate-800 text-slate-300'
+                        ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                        : 'bg-slate-800/80 text-slate-400'
                     }`}
                   >
-                    {p.currentStockMajorUnit.toFixed(1)} {p.unitType}
+                    {p.currentStockMajorUnit.toFixed(1)} {p.unitType.toLowerCase()}
                   </span>
                 </div>
               </button>

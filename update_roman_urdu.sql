@@ -1,0 +1,23 @@
+ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "RomanUrduName" character varying(150) DEFAULT '';
+
+UPDATE "Products" SET "RomanUrduName" = 'Super Basmati Chawal Karnal' WHERE "Sku" = 'RIC-BAS-001';
+UPDATE "Products" SET "RomanUrduName" = 'Kainat 1121 Steam Chawal' WHERE "Sku" = 'RIC-KAI-002';
+UPDATE "Products" SET "RomanUrduName" = 'Daal Chana Khas' WHERE "Sku" = 'DAL-CHA-001';
+UPDATE "Products" SET "RomanUrduName" = 'Daal Moong Dhuli Peeli' WHERE "Sku" = 'DAL-MOO-002';
+UPDATE "Products" SET "RomanUrduName" = 'Cheeni Safaid White Sugar' WHERE "Sku" = 'SUG-WHT-001';
+UPDATE "Products" SET "RomanUrduName" = 'Chakki Ka Atta Gandum Flour' WHERE "Sku" = 'FLR-ATT-001';
+UPDATE "Products" SET "RomanUrduName" = 'Mezan Canola Cooking Oil Pouch Tel' WHERE "Sku" = 'OIL-MEZ-1L';
+UPDATE "Products" SET "RomanUrduName" = 'Dalda Banaspati Ghee Pouch' WHERE "Sku" = 'GHE-DAL-1K';
+UPDATE "Products" SET "RomanUrduName" = 'Sarson Ka Tel Sarson Ka Tail Khula Tel Mustard Oil' WHERE "Sku" = 'OIL-SAR-LOO';
+UPDATE "Products" SET "RomanUrduName" = 'National Lal Mirch Surkh Mirch Powder Red Chilli' WHERE "Sku" = 'SPI-NAT-RED';
+UPDATE "Products" SET "RomanUrduName" = 'National Namak Iodized Salt' WHERE "Sku" = 'SPI-NAT-SLT';
+UPDATE "Products" SET "RomanUrduName" = 'Zeera Safaid Cumin Khula' WHERE "Sku" = 'SPI-ZER-LOO';
+UPDATE "Products" SET "RomanUrduName" = 'Tapal Danedar Chaye Chai Tea Patti' WHERE "Sku" = 'TEA-TAP-400';
+UPDATE "Products" SET "RomanUrduName" = 'Rooh Afza Sharbath Sharbat Bottle' WHERE "Sku" = 'BEV-ROO-800';
+UPDATE "Products" SET "RomanUrduName" = 'Coca Cola Bottle Coke Cold Drink' WHERE "Sku" = 'BEV-COK-1.5';
+UPDATE "Products" SET "RomanUrduName" = 'Sooper Biscuit Peek Freans Half Roll' WHERE "Sku" = 'BIS-SOP-HLF';
+UPDATE "Products" SET "RomanUrduName" = 'Rio Strawberry Biscuit Peek Freans' WHERE "Sku" = 'BIS-RIO-STR';
+UPDATE "Products" SET "RomanUrduName" = 'Surf Excel Washing Powder Detergent 1kg' WHERE "Sku" = 'DET-SRF-1KG';
+UPDATE "Products" SET "RomanUrduName" = 'Lux Beauty Soap Rose Sabun Saban' WHERE "Sku" = 'SOP-LUX-140';
+UPDATE "Products" SET "RomanUrduName" = 'Vim Bartan Dhone Wala Sabun Dishwash Bar' WHERE "Sku" = 'DSH-VIM-300';
+UPDATE "Products" SET "RomanUrduName" = 'Sunsilk Black Shine Shampoo' WHERE "Sku" = 'SHM-SUN-180';
