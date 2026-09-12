@@ -4,6 +4,7 @@ namespace DukaanOS.API.DTOs;
 
 // Auth
 public record LoginRequest(string Username, string Password);
+public record RegisterStoreRequest(string StoreName, string OwnerFullName, string? Phone, string? City, string Username, string Password);
 public record LoginResponse(string Token, UserDto User);
 public record UserDto(int Id, string Username, string FullName, string Role, int StoreId, string StoreName);
 public record StoreDto(int Id, string Name, string? OwnerName, string? Phone, string? Address, string? City);

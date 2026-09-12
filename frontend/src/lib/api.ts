@@ -104,6 +104,23 @@ export class ApiClient {
     return data;
   }
 
+  public static async registerStore(payload: {
+    storeName: string;
+    ownerFullName: string;
+    phone?: string;
+    city?: string;
+    username: string;
+    password: string;
+  }): Promise<{ token: string; user: User }> {
+    const data = await this.request<{ token: string; user: User }>('/auth/register-store', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.setToken(data.token);
+    this.saveUser(data.user);
+    return data;
+  }
+
   public static async getCurrentUser(): Promise<User> {
     return this.request<User>('/auth/me');
   }

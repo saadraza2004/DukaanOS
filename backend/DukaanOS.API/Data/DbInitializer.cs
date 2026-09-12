@@ -10,6 +10,28 @@ public static class DbInitializer
     {
         await context.Database.EnsureCreatedAsync();
 
+        // Ensure PostgreSQL sequences are aligned with existing max IDs
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                DO $$
+                DECLARE
+                    r RECORD;
+                BEGIN
+                    FOR r IN 
+                        SELECT table_name, column_name
+                        FROM information_schema.columns
+                        WHERE column_default LIKE 'nextval%'
+                          AND table_schema = 'public'
+                    LOOP
+                        EXECUTE format('SELECT setval(pg_get_serial_sequence(''%I'', ''%I''), COALESCE(MAX(%I), 1)) FROM %I',
+                            r.table_name, r.column_name, r.column_name, r.table_name);
+                    END LOOP;
+                END $$;
+            ");
+        }
+        catch { /* ignore non-pg or unsupported environments */ }
+
         // 0. Ensure Stores Exist
         if (!await context.Stores.AnyAsync())
         {
