@@ -13,10 +13,12 @@ import {
   X,
   Tag,
   ShieldAlert,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 import { Product, InventoryBatch, InventoryMovement, PriceHistory, User, UnitType } from '../types';
 import { ApiClient } from '../lib/api';
+import { KIRYANA_PRESETS, autoGenerateUrdu, KiryanaPreset } from '../lib/kiryanaCatalog';
 
 interface InventoryManagementProps {
   currentUser: User;
@@ -95,13 +97,76 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
     }
   };
 
+  const [suggestions, setSuggestions] = useState<KiryanaPreset[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [customUrduEdit, setCustomUrduEdit] = useState(false);
+
+  const handleItemNameChange = (val: string) => {
+    const autoUrdu = autoGenerateUrdu(val);
+    setNewProductForm((prev) => ({
+      ...prev,
+      romanUrduName: val,
+      name: val,
+      urduName: customUrduEdit ? prev.urduName : autoUrdu,
+    }));
+
+    if (val.trim().length >= 2) {
+      const q = val.toLowerCase();
+      const filtered = KIRYANA_PRESETS.filter(
+        (p) => p.romanName.toLowerCase().includes(q) || p.urduName.includes(val)
+      ).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectPreset = (preset: KiryanaPreset) => {
+    let catId = newProductForm.categoryId;
+    const matchedCategory = categories.find((c) =>
+      c.name.toLowerCase().includes(preset.categoryName.toLowerCase())
+    );
+    if (matchedCategory) {
+      catId = matchedCategory.id;
+    } else if (categories.length > 0) {
+      catId = categories[0].id;
+    }
+
+    setNewProductForm((prev) => ({
+      ...prev,
+      romanUrduName: preset.romanName,
+      name: preset.romanName,
+      urduName: preset.urduName,
+      categoryId: catId,
+      unitType: preset.unitType,
+      baseUnitRatio: preset.unitType === 'KG' || preset.unitType === 'LITRE' ? 1000 : 1,
+      currentSellingPrice: preset.suggestedPrice,
+    }));
+    setShowSuggestions(false);
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProductForm.name.trim() || newProductForm.currentSellingPrice <= 0) return;
+    const itemName = newProductForm.romanUrduName.trim() || newProductForm.name.trim();
+    if (!itemName) {
+      alert('Barah-e-karam item ka naam likhein.');
+      return;
+    }
+    if (newProductForm.currentSellingPrice <= 0) {
+      alert('Barah-e-karam selling price darj karein.');
+      return;
+    }
+
+    const finalUrdu = newProductForm.urduName.trim() || autoGenerateUrdu(itemName) || itemName;
 
     try {
       await ApiClient.createProduct({
         ...newProductForm,
+        name: itemName,
+        romanUrduName: itemName,
+        urduName: finalUrdu,
         baseUnitRatio:
           newProductForm.unitType === 'KG' || newProductForm.unitType === 'LITRE' ? 1000 : 1,
       });
@@ -110,7 +175,7 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
         name: '',
         urduName: '',
         romanUrduName: '',
-        categoryId: 1,
+        categoryId: categories.length > 0 ? categories[0].id : 1,
         unitType: 'KG',
         baseUnitRatio: 1000,
         currentSellingPrice: 0,
@@ -118,6 +183,9 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
         initialStockMajorUnit: 0,
         initialCostPricePerMajorUnit: 0,
       });
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setCustomUrduEdit(false);
       loadData();
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Error creating product');
@@ -459,42 +527,84 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
               </button>
             </div>
 
-            <form onSubmit={handleCreateProduct} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-400 font-semibold">Product Name (English):</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Basmati Rice (Karnal)"
-                    value={newProductForm.name}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
-                    className="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
-                  />
+            <form onSubmit={handleCreateProduct} className="space-y-3.5">
+              {/* Single Roman Urdu Item Input with Autocomplete */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Item Ka Naam (آئٹم کا نام - Roman Urdu):</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400">English ki zaroorat nahi</span>
                 </div>
-                <div>
-                  <label className="text-slate-400 font-semibold">Urdu Name (اردو نام):</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. باسمتی چاول"
-                    value={newProductForm.urduName}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, urduName: e.target.value })}
-                    className="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-urdu text-right"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-400 font-semibold">
-                  Roman Urdu Search Name (رومن اردو تلاش کے لیے - مثلاً Sarson Ka Tel / Chawal):
-                </label>
                 <input
                   type="text"
-                  placeholder="e.g. Basmati Chawal Karnal Rice"
+                  required
+                  autoFocus
+                  placeholder="e.g. kisan ghee, basmati chawal, tapal chai, surf excel..."
                   value={newProductForm.romanUrduName}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, romanUrduName: e.target.value })}
-                  className="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  onChange={(e) => handleItemNameChange(e.target.value)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl px-3.5 py-2.5 text-white font-medium text-xs placeholder-slate-500 transition"
                 />
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-slate-950/95 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-2xl z-20 max-h-48 overflow-y-auto divide-y divide-slate-800">
+                    <div className="p-1.5 text-[10px] text-slate-400 font-medium bg-slate-900/60 px-3">
+                      ⚡ Quick Suggestions (1-tap pe sab details auto-fill):
+                    </div>
+                    {suggestions.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset)}
+                        className="w-full px-3 py-2 text-left hover:bg-slate-800/80 transition flex items-center justify-between group"
+                      >
+                        <div>
+                          <div className="text-white text-xs font-semibold group-hover:text-emerald-300">
+                            {preset.romanName}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {preset.categoryName} • Unit: {preset.unitType}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-emerald-400 font-urdu">{preset.urduName}</div>
+                          <div className="text-[10px] text-slate-400">Rs. {preset.suggestedPrice}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Live Auto-Urdu Badge */}
+                <div className="mt-2 flex items-center justify-between p-2 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400">اردو نام (Auto-generated):</span>
+                    {customUrduEdit ? (
+                      <input
+                        type="text"
+                        value={newProductForm.urduName}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, urduName: e.target.value })}
+                        className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-xs text-emerald-400 font-urdu text-right"
+                      />
+                    ) : (
+                      <span className="text-xs font-semibold text-emerald-400 font-urdu px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                        {newProductForm.urduName || 'خودکار اردو نام یہاں آئے گا'}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCustomUrduEdit(!customUrduEdit)}
+                    className="text-[10px] text-slate-400 hover:text-slate-200 underline"
+                  >
+                    {customUrduEdit ? 'Save Urdu' : 'Urdu Tabdeel Karein'}
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
