@@ -434,17 +434,6 @@ export const UdhaarKhata: React.FC = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="text-slate-400">Reference / TID (Optional):</label>
-                <input
-                  type="text"
-                  placeholder="e.g. TID-9823412"
-                  value={paymentForm.referenceNumber}
-                  onChange={(e) => setPaymentForm({ ...paymentForm, referenceNumber: e.target.value })}
-                  className="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
-                />
-              </div>
-
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"

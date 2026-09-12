@@ -14,7 +14,8 @@ import {
   Tag,
   ShieldAlert,
   Plus,
-  Sparkles
+  Sparkles,
+  Search
 } from 'lucide-react';
 import { Product, InventoryBatch, InventoryMovement, PriceHistory, User, UnitType } from '../types';
 import { ApiClient } from '../lib/api';
@@ -32,6 +33,7 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [productSearchQuery, setProductSearchQuery] = useState('');
 
   // Modals
   const [showAddProductModal, setShowAddProductModal] = useState(false);
@@ -344,72 +346,132 @@ export const InventoryManagement: React.FC<InventoryManagementProps> = ({ curren
         </div>
 
         {/* Products & Selling Rates Table */}
-        {activeSubTab === 'products' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold">
-                  <tr>
-                    <th className="py-4 px-5">Product Name</th>
-                    <th className="py-4 px-5">Category</th>
-                    <th className="py-4 px-5">Unit</th>
-                    <th className="py-4 px-5">Current Selling Price</th>
-                    <th className="py-4 px-5">Available Stock</th>
-                    <th className="py-4 px-5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {products.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-800/50 transition">
-                      <td className="py-3.5 px-5">
-                        <div className="font-bold text-white text-sm">{p.name}</div>
-                        {p.romanUrduName && (
-                          <div className="text-[11px] font-semibold text-emerald-400/90 mt-0.5">
-                            {p.romanUrduName}
-                          </div>
-                        )}
-                        <div className="text-xs text-slate-400 font-urdu mt-0.5">{p.urduName}</div>
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-400">{p.categoryName}</td>
-                      <td className="py-3.5 px-5 font-semibold text-emerald-400">{p.unitType}</td>
-                      <td className="py-3.5 px-5">
-                        <span className="text-sm font-black text-white">
-                          Rs. {p.currentSellingPrice.toFixed(2)}
-                        </span>
-                        <span className="text-slate-400 text-[11px] ml-1">/ {p.unitType}</span>
-                      </td>
-                      <td className="py-3.5 px-5 font-bold">
-                        <span className={p.currentStockMajorUnit <= p.minStockThreshold ? 'text-red-400' : 'text-slate-200'}>
-                          {p.currentStockMajorUnit.toFixed(1)} {p.unitType}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-right space-x-2">
-                        {isOwner && (
-                          <button
-                            onClick={() => {
-                              setSelectedProduct(p);
-                              setNewPrice(p.currentSellingPrice);
-                              setShowPriceModal(true);
-                            }}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition"
-                          >
-                            Update Sticker Price (نیا ریٹ)
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleViewPriceHistory(p)}
-                          className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700"
-                        >
-                          Price Log
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {activeSubTab === 'products' && (() => {
+          const filteredProducts = products.filter((p) => {
+            if (!productSearchQuery.trim()) return true;
+            const q = productSearchQuery.toLowerCase().trim();
+            return (
+              p.name.toLowerCase().includes(q) ||
+              (p.romanUrduName && p.romanUrduName.toLowerCase().includes(q)) ||
+              (p.urduName && p.urduName.includes(productSearchQuery.trim())) ||
+              (p.categoryName && p.categoryName.toLowerCase().includes(q))
+            );
+          });
+
+          return (
+            <div className="space-y-3">
+              {/* Search Bar */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-3 shadow-sm">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search stock by item name (e.g. kisan ghee, basmati, tapal, سرف)..."
+                    value={productSearchQuery}
+                    onChange={(e) => setProductSearchQuery(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700/80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 rounded-xl pl-10 pr-9 py-2 text-xs text-white placeholder-slate-500 transition"
+                  />
+                  {productSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setProductSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 px-1 text-xs text-slate-400 self-center sm:self-auto">
+                  <span>Showing:</span>
+                  <span className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 font-bold text-emerald-400">
+                    {filteredProducts.length} of {products.length}
+                  </span>
+                  <span>items</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="py-4 px-5">Product Name</th>
+                        <th className="py-4 px-5">Category</th>
+                        <th className="py-4 px-5">Unit</th>
+                        <th className="py-4 px-5">Current Selling Price</th>
+                        <th className="py-4 px-5">Available Stock</th>
+                        <th className="py-4 px-5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800 text-slate-300">
+                      {filteredProducts.map((p) => (
+                        <tr key={p.id} className="hover:bg-slate-800/50 transition">
+                          <td className="py-3.5 px-5">
+                            <div className="font-bold text-white text-sm">{p.name}</div>
+                            {p.romanUrduName && (
+                              <div className="text-[11px] font-semibold text-emerald-400/90 mt-0.5">
+                                {p.romanUrduName}
+                              </div>
+                            )}
+                            <div className="text-xs text-slate-400 font-urdu mt-0.5">{p.urduName}</div>
+                          </td>
+                          <td className="py-3.5 px-5 text-slate-400">{p.categoryName}</td>
+                          <td className="py-3.5 px-5 font-semibold text-emerald-400">{p.unitType}</td>
+                          <td className="py-3.5 px-5">
+                            <span className="text-sm font-black text-white">
+                              Rs. {p.currentSellingPrice.toFixed(2)}
+                            </span>
+                            <span className="text-slate-400 text-[11px] ml-1">/ {p.unitType}</span>
+                          </td>
+                          <td className="py-3.5 px-5 font-bold">
+                            <span className={p.currentStockMajorUnit <= p.minStockThreshold ? 'text-red-400' : 'text-slate-200'}>
+                              {p.currentStockMajorUnit.toFixed(1)} {p.unitType}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-5 text-right space-x-2">
+                            {isOwner && (
+                              <button
+                                onClick={() => {
+                                  setSelectedProduct(p);
+                                  setNewPrice(p.currentSellingPrice);
+                                  setShowPriceModal(true);
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition"
+                              >
+                                Update Sticker Price (نیا ریٹ)
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleViewPriceHistory(p)}
+                              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700"
+                            >
+                              Price Log
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredProducts.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="text-center py-10 text-slate-400">
+                            Koi item nahi mila &quot;{productSearchQuery}&quot;
+                            <button
+                              type="button"
+                              onClick={() => setProductSearchQuery('')}
+                              className="block mx-auto mt-2 text-xs text-emerald-400 hover:underline font-semibold"
+                            >
+                              Clear Search Filter (فلٹر ختم کریں)
+                            </button>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Batches Table */}
         {activeSubTab === 'batches' && (
