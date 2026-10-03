@@ -1,4 +1,4 @@
-﻿# 🏪 DukaanOS (دکان او ایس)
+# 🏪 DukaanOS (دکان او ایس)
 ### Smart Offline-First Retail POS & Khata Management System
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3-black?logo=next.js)](https://nextjs.org/)
@@ -181,3 +181,6 @@ git push -u origin main
 
 ## 📄 License
 This project is licensed under the MIT License.
+Copyright (c) 2026 Muhammad Saad Raza. All rights reserved.
+
+No part of this repository may be reproduced, distributed, modified, or sold in any form or by any means without the prior written permission of the copyright holder.
